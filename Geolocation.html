@@ -48,7 +48,377 @@
             //   geolocation();
             //   LatLng()  ;
             // basicEvent();  
-            POIClickEvent();
+            // POIClickEvent();
+            // customMarker();
+            // accessibleMarker();
+            // vertex();
+            // polygon();
+            // dashedPolygon();
+            // KMLLayer();
+            // dataLayerStyle();
+            dataLayer_dynamicStyle();
+        }
+        let map;
+
+        function dataLayer_dynamicStyle() {
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 4,
+                center: { lat: -28, lng: 137 },
+            });
+            // Load GeoJSON.
+            map.data.loadGeoJson(
+                "https://storage.googleapis.com/mapsdevsite/json/google.json"
+            );
+            // Color each letter gray. Change the color when the isColorful property
+            // is set to true.
+            map.data.setStyle((feature) => {
+                let color = "gray";
+
+                if (feature.getProperty("isColorful")) {
+                    color = feature.getProperty("color");
+                }
+                return /** @type {!google.maps.Data.StyleOptions} */ {
+                    fillColor: color,
+                    strokeColor: color,
+                    strokeWeight: 2,
+                };
+            });
+            // When the user clicks, set 'isColorful', changing the color of the letters.
+            map.data.addListener("click", (event) => {
+                event.feature.setProperty("isColorful", true);
+            });
+            // When the user hovers, tempt them to click by outlining the letters.
+            // Call revertStyle() to remove all overrides. This will use the style rules
+            // defined in the function passed to setStyle()
+            map.data.addListener("mouseover", (event) => {
+                map.data.revertStyle();
+                map.data.overrideStyle(event.feature, { strokeWeight: 8 });
+            });
+            map.data.addListener("mouseout", (event) => {
+                map.data.revertStyle();
+            });
+        }
+
+        function dataLayerStyle() {
+            let map;
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 4,
+                center: { lat: -28, lng: 137 },
+            });
+            // Load GeoJSON.
+            map.data.loadGeoJson(
+                "https://storage.googleapis.com/maps-devrel/google.json"
+            );
+            // Add some style.
+            map.data.setStyle((feature) => {
+                return /** @type {google.maps.Data.StyleOptions} */ {
+                    fillColor: feature.getProperty("color"),
+                    strokeWeight: 1,
+                };
+            });
+            // Set mouseover event for each feature.
+            map.data.addListener("mouseover", (event) => {
+                document.getElementById("info-box").textContent =
+                    event.feature.getProperty("letter");
+            });
+        }
+        function KMLLayer() {
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 11,
+                center: { lat: 41.876, lng: -87.624 },
+            });
+            const ctaLayer = new google.maps.KmlLayer({
+                url: "https://googlearchive.github.io/js-v2-samples/ggeoxml/cta.kml",
+                map: map,
+            });
+        }
+        // This example converts a polyline to a dashed line, by
+        // setting the opacity of the polyline to 0, and drawing an opaque symbol
+        // at a regular interval on the polyline.
+        function dashedPolygon() {
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 6,
+                center: { lat: 20.291, lng: 153.027 },
+                mapTypeId: "terrain",
+            });
+            // Define a symbol using SVG path notation, with an opacity of 1.
+            const lineSymbol = {
+                path: "M 0,-1 0,1",
+                strokeOpacity: 1,
+                scale: 4,
+            };
+            // Create the polyline, passing the symbol in the 'icons' property.
+            // Give the line an opacity of 0.
+            // Repeat the symbol at intervals of 20 pixels to create the dashed effect.
+            const line = new google.maps.Polyline({
+                path: [
+                    { lat: 22.291, lng: 153.027 },
+                    { lat: 18.291, lng: 153.027 },
+                ],
+                strokeOpacity: 0,
+                icons: [
+                    {
+                        icon: lineSymbol,
+                        offset: "0",
+                        repeat: "40px",
+                    },
+                ],
+                map: map,
+            });
+        }
+
+        // This example creates a triangular polygon with a hole in it.
+        function polygon() {
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 5,
+                center: { lat: 24.886, lng: -70.268 },
+            });
+            // Define the LatLng coordinates for the polygon's  outer path.
+            const outerCoords = [
+                { lat: 40, lng: -60 },
+                { lat: 40, lng: -80 },
+                { lat: 15, lng: -80 },
+            ];
+            // Define the LatLng coordinates for the polygon's inner path.
+            // Note that the points forming the inner path are wound in the
+            // opposite direction to those in the outer path, to form the hole.
+            const innerCoords = [
+                { lat: 30, lng: -80 },
+                { lat: 30, lng: -60 },
+                { lat: 15, lng: -80 },
+            ];
+            // Construct the polygon, including both paths.
+            const bermudaTriangle = new google.maps.Polygon({
+                paths: [outerCoords, innerCoords],
+                strokeColor: "#FFC107",
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: "#FFC107",
+                fillOpacity: 0.35,
+            });
+            bermudaTriangle.setMap(map);
+        }
+        function vertex() {
+            const mapOptions = {
+                zoom: 3,
+                center: new google.maps.LatLng(0, -180),
+                mapTypeId: "terrain",
+            };
+            const map = new google.maps.Map(document.getElementById("map"), mapOptions);
+            const flightPlanCoordinates = [
+                new google.maps.LatLng(37.772323, -122.214897),
+                new google.maps.LatLng(21.291982, -157.821856),
+                new google.maps.LatLng(-18.142599, 178.431),
+                new google.maps.LatLng(-27.46758, 153.027892),
+            ];
+            const flightPath = new google.maps.Polyline({
+                path: flightPlanCoordinates,
+                editable: true,
+                strokeColor: "#FF0000",
+                strokeOpacity: 1.0,
+                strokeWeight: 2,
+                map: map,
+            });
+
+            /**
+             * A menu that lets a user delete a selected vertex of a path.
+             */
+            class DeleteMenu extends google.maps.OverlayView {
+                constructor() {
+                    super();
+                    this.div_ = document.createElement("div");
+                    this.div_.className = "delete-menu";
+                    this.div_.innerHTML = "Delete";
+                    const menu = this;
+                    google.maps.event.addDomListener(this.div_, "click", () => {
+                        menu.removeVertex();
+                    });
+                }
+                onAdd() {
+                    const deleteMenu = this;
+                    const map = this.getMap();
+                    this.getPanes().floatPane.appendChild(this.div_);
+                    // mousedown anywhere on the map except on the menu div will close the
+                    // menu.
+                    this.divListener_ = google.maps.event.addDomListener(
+                        map.getDiv(),
+                        "mousedown",
+                        (e) => {
+                            if (e.target != deleteMenu.div_) {
+                                deleteMenu.close();
+                            }
+                        },
+                        true
+                    );
+                }
+                onRemove() {
+                    if (this.divListener_) {
+                        google.maps.event.removeListener(this.divListener_);
+                    }
+                    this.div_.parentNode.removeChild(this.div_);
+                    // clean up
+                    this.set("position", null);
+                    this.set("path", null);
+                    this.set("vertex", null);
+                }
+                close() {
+                    this.setMap(null);
+                }
+                draw() {
+                    const position = this.get("position");
+                    const projection = this.getProjection();
+
+                    if (!position || !projection) {
+                        return;
+                    }
+                    const point = projection.fromLatLngToDivPixel(position);
+                    this.div_.style.top = point.y + "px";
+                    this.div_.style.left = point.x + "px";
+                }
+                /**
+                 * Opens the menu at a vertex of a given path.
+                 */
+                open(map, path, vertex) {
+                    this.set("position", path.getAt(vertex));
+                    this.set("path", path);
+                    this.set("vertex", vertex);
+                    this.setMap(map);
+                    this.draw();
+                }
+                /**
+                 * Deletes the vertex from the path.
+                 */
+                removeVertex() {
+                    const path = this.get("path");
+                    const vertex = this.get("vertex");
+
+                    if (!path || vertex == undefined) {
+                        this.close();
+                        return;
+                    }
+                    path.removeAt(vertex);
+                    this.close();
+                }
+            }
+            const deleteMenu = new DeleteMenu();
+            google.maps.event.addListener(flightPath, "contextmenu", (e) => {
+                // Check if click was on a vertex control point
+                if (e.vertex == undefined) {
+                    return;
+                }
+                deleteMenu.open(map, flightPath.getPath(), e.vertex);
+            });
+        }
+        // The following example creates five accessible and
+        // focusable markers.
+        function accessibleMarker() {
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 12,
+                center: { lat: 34.84555, lng: -111.8035 },
+            });
+            // Set LatLng and title text for the markers. The first marker (Boynton Pass)
+            // receives the initial focus when tab is pressed. Use arrow keys to
+            // move between markers; press tab again to cycle through the map controls.
+            const tourStops = [
+                [{ lat: 34.8791806, lng: -111.8265049 }, "Boynton Pass"],
+                [{ lat: 34.8559195, lng: -111.7988186 }, "Airport Mesa"],
+                [{ lat: 34.832149, lng: -111.7695277 }, "Chapel of the Holy Cross"],
+                [{ lat: 34.823736, lng: -111.8001857 }, "Red Rock Crossing"],
+                [{ lat: 34.800326, lng: -111.7665047 }, "Bell Rock"],
+            ];
+            // Create an info window to share between markers.
+            const infoWindow = new google.maps.InfoWindow();
+            // Create the markers.
+            tourStops.forEach(([position, title], i) => {
+                const marker = new google.maps.Marker({
+                    position,
+                    map,
+                    title: `${i + 1}. ${title}`,
+                    label: `${i + 1}`,
+                    optimized: false,
+                });
+                // Add a click listener for each marker, and set up the info window.
+                marker.addListener("click", () => {
+                    alert('sd')
+                    // infoWindow.close();
+                    // infoWindow.setContent(marker.getTitle());
+                    // infoWindow.open(marker.getMap(), marker);
+                });
+            });
+        }
+        function customMarker() {
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 6,
+                center: { lat: -31.89, lng: 151 },
+            });
+            const image =
+                "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png";
+            const beachMarker = new google.maps.Marker({
+                position: { lat: -31.89, lng: 151.274 },
+                map,
+                icon: image,
+                label: 'custom'
+            });
+
+            new google.maps.Marker({
+                position: { lat: -30.89, lng: 151.274 },
+                icon: {
+                    path: 0,
+                    scale: 10,
+                },
+                draggable: true,
+                map: map,
+            });
+            new google.maps.Marker({
+                position: { lat: -29.89, lng: 151.274 },
+                icon: {
+                    path: 1,
+                    scale: 10,
+                },
+                draggable: true,
+                map: map,
+            });
+            new google.maps.Marker({
+                position: { lat: -28.89, lng: 151.274 },
+                icon: {
+                    path: 2,
+                    scale: 10,
+                },
+                draggable: true,
+                map: map,
+            });
+            new google.maps.Marker({
+                position: { lat: -27.89, lng: 151.274 },
+                icon: {
+                    path: 3,
+                    scale: 10,
+                },
+                draggable: true,
+                map: map,
+            });
+            new google.maps.Marker({
+                position: { lat: -26.89, lng: 151.274 },
+                icon: {
+                    path: 4,
+                    scale: 10,
+                },
+                draggable: true,
+                map: map,
+            });
+            const svgMarker = {
+                path: "M10.453 14.016l6.563-6.609-1.406-1.406-5.156 5.203-2.063-2.109-1.406 1.406zM12 2.016q2.906 0 4.945 2.039t2.039 4.945q0 1.453-0.727 3.328t-1.758 3.516-2.039 3.070-1.711 2.273l-0.75 0.797q-0.281-0.328-0.75-0.867t-1.688-2.156-2.133-3.141-1.664-3.445-0.75-3.375q0-2.906 2.039-4.945t4.945-2.039z",
+                fillColor: "blue",
+                fillOpacity: 0.6,
+                strokeWeight: 0,
+                rotation: 0,
+                scale: 2,
+                anchor: new google.maps.Point(15, 30),
+            };
+            new google.maps.Marker({
+                position: { lat: -26.89, lng: 152.274 },
+                icon: svgMarker,
+                map: map,
+            });
         }
         function LatLng() {
             const mapOptions = {
