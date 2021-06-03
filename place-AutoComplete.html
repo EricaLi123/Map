@@ -103,9 +103,9 @@
             const strictBoundsInputElement = document.getElementById("use-strict-bounds");
             const options = {
                 componentRestrictions: { country: "cn" },
-                fields: ["formatted_address", "geometry", "name"],
+                fields: ["formatted_address", "geometry", "name", 'address_components'],
                 origin: map.getCenter(),
-                strictBounds: true,
+                strictBounds: false,
                 types: ["establishment"],
             };
             map.controls[google.maps.ControlPosition.TOP_RIGHT].push(card);
