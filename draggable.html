@@ -78,28 +78,31 @@
             service.route(
                 {
                     origin: origin,
-                    destination: destination,
+                    // origin: origin,
+                    destination: origin,
                     travelMode: google.maps.TravelMode.DRIVING,
                     drivingOptions: {
                         departureTime: new Date(),
                         trafficModel: 'bestguess',//bestguess, pessimistic, optimistic
                     },
                     // unitSystem
+                    //在地图 JavaScript API 中使用方向服务时允许的最大航点数为 25，外加原点和目的地。方向 API 网络服务的限制是相同的。
                     waypoints: [
+                        // Setting the stopover to false to avoid stopovers results in directions that are very strict in their interpretation of the waypoint. This may result in severe detours on the route or ZERO_RESULTS in the response status code if the Directions Service is unable to create directions through that point.
+                        {
+                            location: "Broken Hill, NSW",
+                            stopover: true
+                        },
                         {
                             location: "Adelaide, SA",
                             stopover: true
                         },
-                        {
-                            location: "Broken Hill, NSW",
-                            stopover: false
-                        },
                     ],
                     optimizeWaypoints: true,
-                    // provideRouteAlternatives: Boolean,
+                    // provideRouteAlternatives: Boolean, //This is only available for requests without intermediate waypoints.
                     // avoidFerries: Boolean,
                     // avoidHighways: Boolean,
-                    avoidTolls: true,
+                    // avoidTolls: true,
                     // region: String
                 },
                 (result, status) => {
